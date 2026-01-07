@@ -48,8 +48,8 @@ button{
 .heart,.confetti{
     position:absolute;
     font-size:28px;
-    pointer-events:none;
-    animation:fall 4s linear forwards;
+    cursor:pointer;
+    z-index:9999;
 }
 @keyframes float{
     0%,100%{transform:translateY(0);}
@@ -110,7 +110,7 @@ button{
 </div>
 
 <script>
-const isim="Çisem"; // 👈 DEĞİŞTİR
+const isim="Çisem"; //
 const music=document.getElementById("music");
 let musicOn=false;
 
