@@ -190,7 +190,7 @@ function rainParty(){
         h.innerHTML="💖";
         h.style.left=Math.random()*100+"vw";
         h.style.top="-30px";
-        document.body.appendChild(h);
+        document.getElementById("scene1").appendChild(h);
         setTimeout(()=>h.remove(),4000);
 
         const c=document.createElement("div");
@@ -206,3 +206,4 @@ function rainParty(){
 
 </body>
 </html>
+
