@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Senin İçin</title>
+<title>Senin İçin 💌</title>
 
 <style>
 body{
@@ -16,26 +16,36 @@ body{
     justify-content:center;
     align-items:center;
 }
+
 .scene{
     display:none;
     text-align:center;
+    background:rgba(255,255,255,.7);
     backdrop-filter:blur(12px);
-    background:rgba(255,255,255,.65);
     padding:30px;
-    border-radius:22px;
-    box-shadow:0 15px 35px rgba(0,0,0,.15);
+    border-radius:24px;
+    box-shadow:0 20px 40px rgba(0,0,0,.2);
+    animation:pop .6s ease;
 }
+
 .scene.active{display:block;}
+
+@keyframes pop{
+    from{transform:scale(.85);opacity:0}
+    to{transform:scale(1);opacity:1}
+}
+
 button{
-    padding:12px 24px;
-    border-radius:25px;
+    padding:12px 26px;
     border:none;
+    border-radius:25px;
     background:#ff6f91;
     color:#fff;
     font-size:16px;
     cursor:pointer;
     margin:10px;
 }
+
 #musicBtn{
     position:fixed;
     top:15px;
@@ -43,22 +53,32 @@ button{
     background:#fff;
     color:#ff6f91;
     font-size:14px;
-    border-radius:20px;
 }
-.heart,.confetti{
+
+.heart{
     position:absolute;
-    font-size:28px;
+    font-size:30px;
     cursor:pointer;
     z-index:9999;
+    animation:float 3s ease-in-out infinite;
 }
+
 @keyframes float{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-40px);}
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-40px)}
 }
+
+.fall{
+    position:absolute;
+    animation:fall 5s linear forwards;
+    font-size:26px;
+}
+
 @keyframes fall{
-    from{transform:translateY(0);opacity:1;}
-    to{transform:translateY(100vh);opacity:0;}
+    from{transform:translateY(-30px);opacity:1}
+    to{transform:translateY(100vh);opacity:0}
 }
+
 .card{
     width:80px;
     height:120px;
@@ -72,6 +92,7 @@ button{
     font-size:24px;
     cursor:pointer;
 }
+
 #noBtn{
     position:relative;
     background:#ccc;
@@ -82,7 +103,7 @@ button{
 
 <body>
 
-<button id="musicBtn" onclick="toggleMusic()">🔊 Müzik</button>
+<button id="musicBtn" onclick="startMusic()">🔊 Müzik</button>
 
 <audio id="music" loop>
 <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_9c7c2d77b6.mp3">
@@ -91,6 +112,7 @@ button{
 <div id="scene1" class="scene active">
     <h2>❤️ Kalpleri Yakala</h2>
     <p id="count">0 / 5</p>
+    <button onclick="startGame()">Başla 🎵</button>
 </div>
 
 <div id="scene2" class="scene">
@@ -110,14 +132,21 @@ button{
 </div>
 
 <script>
-const isim="Çisem"; //
-const music=document.getElementById("music");
-let musicOn=false;
+const isim = "Çisem"; // 👈 sadece bunu değiştir
+const music = document.getElementById("music");
+let started = false;
+let caught = 0;
 
-function toggleMusic(){
-    if(musicOn){music.pause();}
-    else{music.play();}
-    musicOn=!musicOn;
+function startMusic(){
+    music.play();
+}
+
+function startGame(){
+    if(!started){
+        music.play();
+        started = true;
+        spawnHearts();
+    }
 }
 
 function show(id){
@@ -126,24 +155,23 @@ function show(id){
 }
 
 /* SAHNE 1 */
-let caught=0;
-for(let i=0;i<5;i++){
-    setTimeout(()=>{
-        const h=document.createElement("div");
-        h.className="heart";
-        h.innerHTML="❤️";
-        h.style.left=Math.random()*80+"vw";
-        h.style.top=Math.random()*80+"vh";
-        h.style.animation="float 3s ease-in-out infinite";
-        h.onclick=()=>{
-            music.play(); musicOn=true;
-            h.remove();
-            caught++;
-            document.getElementById("count").innerText=`${caught} / 5`;
-            if(caught===5) show("scene2");
-        };
-        document.body.appendChild(h);
-    },i*600);
+function spawnHearts(){
+    for(let i=0;i<5;i++){
+        setTimeout(()=>{
+            const h=document.createElement("div");
+            h.className="heart";
+            h.innerHTML="❤️";
+            h.style.left=Math.random()*80+"vw";
+            h.style.top=Math.random()*80+"vh";
+            h.onclick=()=>{
+                h.remove();
+                caught++;
+                document.getElementById("count").innerText=`${caught} / 5`;
+                if(caught===5) show("scene2");
+            };
+            document.getElementById("scene1").appendChild(h);
+        },i*600);
+    }
 }
 
 /* SAHNE 2 */
@@ -174,36 +202,41 @@ function runAway(){
 /* FINAL */
 function yes(){
     show("final");
-    document.getElementById("finalText").innerHTML=
-    `${isim}, bu kadar uğraştıysan…<br>zaten cevabı biliyorum ❤️`;
+    document.getElementById("finalText").innerHTML =
+        `${isim}, bu kadar uğraştıysan…<br>zaten cevabı biliyorum 💌`;
 
     if(navigator.vibrate){
         navigator.vibrate([200,100,200]);
     }
-    rainParty();
-}
 
-function rainParty(){
     setInterval(()=>{
         const h=document.createElement("div");
-        h.className="heart";
+        h.className="fall";
         h.innerHTML="💖";
         h.style.left=Math.random()*100+"vw";
-        h.style.top="-30px";
-        document.getElementById("scene1").appendChild(h);
-        setTimeout(()=>h.remove(),4000);
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(),5000);
 
         const c=document.createElement("div");
-        c.className="confetti";
+        c.className="fall";
         c.innerHTML="🎉";
         c.style.left=Math.random()*100+"vw";
-        c.style.top="-30px";
         document.body.appendChild(c);
-        setTimeout(()=>c.remove(),4000);
-    },250);
+        setTimeout(()=>c.remove(),5000);
+    },150);
 }
+
+/* ARKA PLAN HAREKET */
+setInterval(()=>{
+    const bg=document.createElement("div");
+    bg.className="fall";
+    bg.innerHTML="💗";
+    bg.style.left=Math.random()*100+"vw";
+    bg.style.opacity="0.3";
+    document.body.appendChild(bg);
+    setTimeout(()=>bg.remove(),6000);
+},900);
 </script>
 
 </body>
 </html>
-
