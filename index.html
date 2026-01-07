@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Senin İçin 💌</title>
+<title>Küçük Bir Oyun 💌</title>
 
 <style>
 body{
     margin:0;
     height:100vh;
     background:linear-gradient(135deg,#f5efe6,#f9dede);
-    font-family:'Arial Rounded MT Bold',sans-serif;
+    font-family:Arial, sans-serif;
     overflow:hidden;
     display:flex;
     justify-content:center;
@@ -20,20 +20,13 @@ body{
 .scene{
     display:none;
     text-align:center;
-    background:rgba(255,255,255,.7);
-    backdrop-filter:blur(12px);
+    background:rgba(255,255,255,.8);
     padding:30px;
-    border-radius:24px;
-    box-shadow:0 20px 40px rgba(0,0,0,.2);
-    animation:pop .6s ease;
+    border-radius:20px;
+    box-shadow:0 15px 30px rgba(0,0,0,.2);
 }
 
 .scene.active{display:block;}
-
-@keyframes pop{
-    from{transform:scale(.85);opacity:0}
-    to{transform:scale(1);opacity:1}
-}
 
 button{
     padding:12px 26px;
@@ -46,37 +39,16 @@ button{
     margin:10px;
 }
 
-#musicBtn{
-    position:fixed;
-    top:15px;
-    right:15px;
-    background:#fff;
-    color:#ff6f91;
-    font-size:14px;
-}
-
 .heart{
     position:absolute;
-    font-size:30px;
+    font-size:34px;
     cursor:pointer;
-    z-index:9999;
-    animation:float 3s ease-in-out infinite;
+    animation:float 2s ease-in-out infinite;
 }
 
 @keyframes float{
     0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-40px)}
-}
-
-.fall{
-    position:absolute;
-    animation:fall 5s linear forwards;
-    font-size:26px;
-}
-
-@keyframes fall{
-    from{transform:translateY(-30px);opacity:1}
-    to{transform:translateY(100vh);opacity:0}
+    50%{transform:translateY(-30px)}
 }
 
 .card{
@@ -103,16 +75,10 @@ button{
 
 <body>
 
-<button id="musicBtn" onclick="startMusic()">🔊 Müzik</button>
-
-<audio id="music" loop>
-<source src="https://cdn.pixabay.com/audio/2022/03/15/audio_9c7c2d77b6.mp3">
-</audio>
-
 <div id="scene1" class="scene active">
-    <h2>❤️ Kalpleri Yakala</h2>
+    <h2>❤️ Kalbi Yakala</h2>
     <p id="count">0 / 5</p>
-    <button onclick="startGame()">Başla 🎵</button>
+    <button onclick="spawnHeart()">Başla</button>
 </div>
 
 <div id="scene2" class="scene">
@@ -128,65 +94,57 @@ button{
 
 <div id="final" class="scene">
     <h1>💖</h1>
-    <p id="finalText"></p>
+    <p>Bu kadar uğraştıysan…<br>zaten cevabı biliyorum.</p>
 </div>
 
 <script>
-const isim = "Çisem"; // 👈 sadece bunu değiştir
-const music = document.getElementById("music");
-let started = false;
 let caught = 0;
-
-function startMusic(){
-    music.play();
-}
-
-function startGame(){
-    if(!started){
-        music.play();
-        started = true;
-        spawnHearts();
-    }
-}
+let activeHeart = null;
 
 function show(id){
     document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
 }
 
-/* SAHNE 1 */
-function spawnHearts(){
-    for(let i=0;i<5;i++){
-        setTimeout(()=>{
-            const h=document.createElement("div");
-            h.className="heart";
-            h.innerHTML="❤️";
-            h.style.left=Math.random()*80+"vw";
-            h.style.top=Math.random()*80+"vh";
-            h.onclick=()=>{
-                h.remove();
-                caught++;
-                document.getElementById("count").innerText=`${caught} / 5`;
-                if(caught===5) show("scene2");
-            };
-            document.getElementById("scene1").appendChild(h);
-        },i*600);
-    }
+/* SAHNE 1 – KONTROLLÜ KALP */
+function spawnHeart(){
+    if(activeHeart) return;
+
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.innerHTML = "❤️";
+    h.style.left = Math.random()*80 + "vw";
+    h.style.top = Math.random()*70 + "vh";
+
+    h.onclick = () => {
+        h.remove();
+        activeHeart = null;
+        caught++;
+        document.getElementById("count").innerText = `${caught} / 5`;
+
+        if(caught === 5){
+            show("scene2");
+        }
+    };
+
+    activeHeart = h;
+    document.body.appendChild(h);
 }
 
 /* SAHNE 2 */
-const correct=Math.floor(Math.random()*6);
-const cards=document.getElementById("cards");
+const correct = Math.floor(Math.random()*6);
+const cards = document.getElementById("cards");
+
 for(let i=0;i<6;i++){
-    const c=document.createElement("div");
-    c.className="card";
-    c.innerText="?";
-    c.onclick=()=>{
-        if(i===correct){
-            c.innerText="❤️";
+    const c = document.createElement("div");
+    c.className = "card";
+    c.innerText = "?";
+    c.onclick = () => {
+        if(i === correct){
+            c.innerText = "❤️";
             setTimeout(()=>show("scene3"),600);
         }else{
-            c.innerText="❌";
+            c.innerText = "❌";
         }
     };
     cards.appendChild(c);
@@ -194,48 +152,29 @@ for(let i=0;i<6;i++){
 
 /* SAHNE 3 */
 function runAway(){
-    const b=document.getElementById("noBtn");
-    b.style.left=Math.random()*200-100+"px";
-    b.style.top=Math.random()*200-100+"px";
+    const b = document.getElementById("noBtn");
+    b.style.left = Math.random()*200 - 100 + "px";
+    b.style.top = Math.random()*200 - 100 + "px";
 }
 
 /* FINAL */
 function yes(){
     show("final");
-    document.getElementById("finalText").innerHTML =
-        `${isim}, bu kadar uğraştıysan…<br>zaten cevabı biliyorum 💌`;
-
     if(navigator.vibrate){
         navigator.vibrate([200,100,200]);
     }
 
     setInterval(()=>{
-        const h=document.createElement("div");
-        h.className="fall";
-        h.innerHTML="💖";
+        const h = document.createElement("div");
+        h.style.position="absolute";
         h.style.left=Math.random()*100+"vw";
+        h.style.top="-30px";
+        h.style.fontSize="26px";
+        h.innerHTML="💖";
         document.body.appendChild(h);
-        setTimeout(()=>h.remove(),5000);
-
-        const c=document.createElement("div");
-        c.className="fall";
-        c.innerHTML="🎉";
-        c.style.left=Math.random()*100+"vw";
-        document.body.appendChild(c);
-        setTimeout(()=>c.remove(),5000);
-    },150);
+        setTimeout(()=>h.remove(),4000);
+    },250);
 }
-
-/* ARKA PLAN HAREKET */
-setInterval(()=>{
-    const bg=document.createElement("div");
-    bg.className="fall";
-    bg.innerHTML="💗";
-    bg.style.left=Math.random()*100+"vw";
-    bg.style.opacity="0.3";
-    document.body.appendChild(bg);
-    setTimeout(()=>bg.remove(),6000);
-},900);
 </script>
 
 </body>
